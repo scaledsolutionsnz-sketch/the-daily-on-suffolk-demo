@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en-NZ">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Share Your Feedback | The Daily on Suffolk</title>
+<meta name="description" content="Tell us where we fell short — your feedback goes straight to the team at The Daily on Suffolk." />
+<meta name="theme-color" content="#2a2320" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400..700;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  .fb-wrap { min-height: 100vh; display: grid; place-items: center; background: var(--bone); padding: 110px 24px 60px; }
+  .fb-card { width: 100%; max-width: 560px; background: var(--cream); border: 1px solid var(--line); border-radius: var(--radius-lg); padding: 40px; box-shadow: var(--shadow); }
+  .fb-card .eyebrow { color: var(--clay); }
+  .fb-card h1 { font-size: clamp(1.9rem, 5vw, 2.6rem); margin: 12px 0 10px; }
+  .fb-card > p.intro { color: var(--ink-soft); margin-bottom: 26px; }
+  .fb-stars { color: var(--clay); font-size: 1.5rem; letter-spacing: 4px; margin-bottom: 22px; }
+  .success { display: none; text-align: center; padding: 20px 0; }
+  .success.show { display: block; }
+  .success .tick { width: 64px; height: 64px; border-radius: 50%; background: var(--clay-soft); color: var(--clay-deep); display: grid; place-items: center; margin: 0 auto 18px; }
+  .success h2 { font-size: 1.9rem; margin-bottom: 10px; }
+  .success p { color: var(--ink-soft); }
+  .back { display: inline-block; margin-top: 22px; color: var(--clay); font-weight: 600; font-size: .92rem; }
+</style>
+</head>
+<body>
+<div class="fb-wrap">
+  <div class="fb-card">
+    <div id="formView">
+      <p class="eyebrow">We'd like to put it right</p>
+      <h1>Tell us what happened</h1>
+      <div class="fb-stars" id="starShow" aria-hidden="true">★★★</div>
+      <p class="intro">Thanks for being honest — this comes straight to the team and never goes public. We use it to fix things and do better next time.</p>
+      <form action="https://formsubmit.co/thedaily.onsuffolk@gmail.com" method="POST" id="fbForm">
+        <input type="hidden" name="_subject" value="Private feedback — The Daily on Suffolk" />
+        <input type="hidden" name="_captcha" value="false" />
+        <input type="hidden" name="_template" value="table" />
+        <input type="text" name="_honey" style="display:none" />
+        <input type="hidden" name="Rating" id="ratingField" value="" />
+
+        <div class="field">
+          <label for="name">Your name</label>
+          <input type="text" id="name" name="Name" required placeholder="First and last" />
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="Email" required placeholder="you@email.co.nz" />
+        </div>
+        <div class="field">
+          <label for="rating-display">Your rating</label>
+          <input type="text" id="rating-display" readonly value="" />
+        </div>
+        <div class="field">
+          <label for="feedback">What could we have done better?</label>
+          <textarea id="feedback" name="Feedback" required placeholder="Tell us what let you down — the more detail, the better we can fix it."></textarea>
+        </div>
+        <button class="btn btn--primary" type="submit" style="width:100%;justify-content:center;">Send feedback</button>
+      </form>
+    </div>
+
+    <div class="success" id="successView">
+      <div class="tick" aria-hidden="true"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12l4 4L19 6"/></svg></div>
+      <h2>Thank you</h2>
+      <p>We've got your feedback and the team will take a proper look. We genuinely appreciate you taking the time.</p>
+      <a class="back" href="index.html">← Back to the site</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  var params = new URLSearchParams(window.location.search);
+  var rating = params.get("rating");
+  if (rating && /^[1-5]$/.test(rating)) {
+    document.getElementById("ratingField").value = rating + " star" + (rating === "1" ? "" : "s");
+    document.getElementById("rating-display").value = rating + " out of 5 stars";
+    var s = ""; for (var i = 0; i < 5; i++) { s += i < +rating ? "★" : "☆"; }
+    document.getElementById("starShow").textContent = s;
+  } else {
+    document.getElementById("starShow").style.display = "none";
+    document.getElementById("rating-display").value = "Not specified";
+  }
+
+  // Submit via fetch so we can show a success state without leaving the page.
+  var form = document.getElementById("fbForm");
+  form.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var btn = form.querySelector("button");
+    btn.textContent = "Sending…"; btn.disabled = true;
+    fetch(form.action, { method: "POST", body: new FormData(form), headers: { Accept: "application/json" } })
+      .then(function () { showSuccess(); })
+      .catch(function () { showSuccess(); });
+  });
+  function showSuccess() {
+    document.getElementById("formView").style.display = "none";
+    document.getElementById("successView").classList.add("show");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+</script>
+</body>
+</html>
